@@ -8,10 +8,14 @@
         xmlns:models="clr-namespace:Tkcv_LAB1.MVVM.Models"
         d:DataContext="{d:DesignInstance Type=viewModel:MainWindowVM}"
         mc:Ignorable="d"
-        Title="MainWindow" Height="700" Width="1100">
+        Title="MainWindow"
+        Height="700"
+        Width="1350"
+        Background="#282D33" 
+        BorderBrush="#3A4149">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
+            <RowDefinition Height="100"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         
@@ -20,7 +24,8 @@
             <TextBox Text="{Binding SearchData}"
                      Width="280"
                      Height="50"
-                     FontSize="22"/>
+                     FontSize="22"
+                     Background="#373E46"/>
             <Border Width="30"/>
             <ComboBox Text="Sort type"
                       ItemsSource="{Binding SortTypes}"
@@ -29,7 +34,16 @@
                       Height="50"
                       IsEditable="True"
                       IsReadOnly="True"
-                      FontSize="22">
+                      FontSize="22"
+                      Background="Gray"
+                      BorderBrush="Gray"
+                      Style="{DynamicResource ComboBoxStyle1}">
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="Gray"/>
+                        <Setter Property="BorderBrush" Value="Gray"/>
+                    </Style>
+                </ComboBox.ItemContainerStyle>
             </ComboBox>
             <Border Width="30"/>
             <ComboBox Text="Filtration"
@@ -43,44 +57,89 @@
                </ComboBox>
         </StackPanel>
         
-        <StackPanel Grid.Row="1" VerticalAlignment="Top">
-            <ListBox ItemsSource="{Binding Products}">
+        <StackPanel Grid.Row="1"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Center"
+                    Background="#373E46"
+                    Width="1300">
+           <Grid>
+               <Grid.ColumnDefinitions>
+                   <ColumnDefinition/>
+                   <ColumnDefinition/>
+                   <ColumnDefinition/>
+               </Grid.ColumnDefinitions>
+               
+               
+           </Grid>
+            <ListBox ItemsSource="{Binding Products}"
+                     IsHitTestVisible="False"
+                     BorderThickness="0"
+                     Background="Transparent">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:Product}">                                
-                        <StackPanel Orientation="Horizontal" Height="200">
+                        <StackPanel Orientation="Horizontal" 
+                                    Height="200"
+                                    Background="Transparent">
                             <StackPanel>
                                 <Image Source="{Binding PathImg}"
-                                       Width="200"
+                                       Width="150"
                                        Height="150"
                                        Stretch="Fill"/>
                             </StackPanel>
                             <Border Width="30"/>
                             <StackPanel Orientation="Vertical">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Type}" FontSize="20"/>
+                                    <TextBlock Text="{Binding Type}"
+                                               FontSize="20"
+                                               FontFamily="Helvetica"
+                                               FontWeight="Normal"/>
                                     <Border Width="25"/>
-                                    <TextBlock FontSize="20" Width="150" Text="{Binding Name}"/>
+                                    <TextBlock FontSize="20"
+                                               Text="{Binding Name}"
+                                               FontFamily="Helvetica"
+                                               FontWeight="Light"/>
                                 </StackPanel>
-                                <Border Height="15"/>
+                                <Border Height="25"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Vendor code" FontSize="20"/>
-                                    <Border Width="50"/>
-                                    <TextBlock Text="{Binding VendorCode}" FontSize="20"/>
+                                    <TextBlock Text="{Binding VendorCode}"
+                                               FontSize="20"
+                                               FontFamily="Helvetica"
+                                               FontWeight="Light"/>
                                 </StackPanel>
-                                <Border Height="15"/>
+                                <Border Height="25"/>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Materials:" FontSize="20"/>
+                                    <TextBlock Text="Materials:"
+                                               FontSize="20"
+                                               FontFamily="Helvetica"
+                                               FontWeight="Light"/>
                                     <ListBox ItemsSource="{Binding Materials}"
-                                             >
-                                
+                                             FontFamily="Helvetica"
+                                             FontSize="20"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             FontWeight="Light">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"
+                                                            VerticalAlignment="Center"
+                                                            HorizontalAlignment="Center"/>
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
                                     </ListBox>
                                 </StackPanel>
                             </StackPanel>
-                            <Border Width="30"/>
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Text="Price" FontSize="20"/>
-                                <Border Height="15"/>
-                                <TextBlock Text="{Binding Price}" Height="40" Width="70" FontSize="20"/>
+                            <Border Width="100"/>
+                            <StackPanel Orientation="Vertical" 
+                                        HorizontalAlignment="Center">
+                                <TextBlock Text="Price" 
+                                           FontSize="20"
+                                           FontFamily="Helvetica"
+                                           FontWeight="Light"/>
+                                <Border Height="25"/>
+                                <TextBlock Text="{Binding Price}"
+                                           FontSize="30"
+                                           FontFamily="Helvetica"
+                                           FontWeight="Light"/>
                             </StackPanel>
                         </StackPanel>
                     </DataTemplate>

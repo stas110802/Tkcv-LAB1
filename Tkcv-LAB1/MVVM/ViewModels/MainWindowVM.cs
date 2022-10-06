@@ -43,15 +43,15 @@ public class MainWindowVM : ObservableObject
         });
         Products.Add(new Product()
         {
-            Name = "Name of product2",
-            Price = 2300m,
+            Name = "jopaPis",
+            Price = 22300m,
             VendorCode = "550-831",
             Materials = new List<string>()
             {
                 "mat1",
                 "mat2",
             },
-            Type = "Type of product2",
+            Type = "Tyf produt2",
             PathImg = "D:\\meme\\280fbcdca7af8211808471ecaf067654.jpg"
         });
     }
