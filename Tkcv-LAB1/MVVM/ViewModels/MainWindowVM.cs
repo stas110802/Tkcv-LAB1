@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
 using System.Windows.Controls;
 using Tkcv_LAB1.Core;
 using Tkcv_LAB1.MVVM.Models;
@@ -15,20 +14,25 @@ public class MainWindowVM : ObservableObject
     private string _selectedSort;
     private string _selectedFiltrationSetting;
     private int _totalPage;
+    private readonly int _maxCountDisplay;
+
     private ObservableCollection<string> _sortTypes;
     private ObservableCollection<string> _filtrationSettings;
-    private ObservableCollection<Product> _allProducts;// all product
-    private ObservableCollection<Product> _products;// view data
-    private ObservableCollection<Button> _buttons;
+    private ObservableCollection<Product> _allProducts;// all products [rework to list]
+    private ObservableCollection<Product> _displayedDisplayedProducts;// displayed products
+    private List<Product> _viewProducts;
     
+    private ObservableCollection<Button> _buttons;
+
     public MainWindowVM()
     {
-        _totalPage = 1;
+        _maxCountDisplay = 4;
         _sortTypes = new ObservableCollection<string>();
         _filtrationSettings = new ObservableCollection<string>();
-        _products = new ObservableCollection<Product>();
+        _displayedDisplayedProducts = new ObservableCollection<Product>(); // max - _countView
         _buttons = new ObservableCollection<Button>();
         _allProducts = new ObservableCollection<Product>();
+        _viewProducts = new List<Product>();
         
         InitButtons();
 
@@ -37,11 +41,11 @@ public class MainWindowVM : ObservableObject
         SortTypes.Add("Type");
         _filtrationSettings.Add("Low price to upper");
         _filtrationSettings.Add("Upper price to lower");
-        AddTestData(25);
-        WriteViewList(0, 4);
+        AddTestData(235);
+        TotalPage = 1;
     }
 
-    public void GetPressedButtonNumber(object sender)
+    public void ChangeTotalPageByButtonContent(object sender)
     {
         var content = sender.ToString();
         var result = int.TryParse(content, out var newNumberPage);
@@ -52,24 +56,27 @@ public class MainWindowVM : ObservableObject
         }
         else
         {
-            if(_totalPage == newNumberPage) return;
-            _totalPage = newNumberPage;
+            if(TotalPage == newNumberPage) return;
+            TotalPage = newNumberPage;
         }
-        
-        var to = _totalPage * 4;
-        var from = to - 4;
-        
-        if (to > _allProducts.Count) to = _allProducts.Count;
-        if(from >= _allProducts.Count || from < 0) return;
-
-        WriteViewList(from, to);
-        ChangeButtons(_totalPage);
     }
 
     public string SearchData
     {
         get => _searchData;
-        set => Set(ref _searchData, value, nameof(SearchData));
+        set
+        {
+            Set(ref _searchData, value, nameof(SearchData));
+            OnChangeSearchBox();
+            TotalPage = 1;
+        }
+    }
+
+    private void OnChangeSearchBox()
+    {
+        _viewProducts = _allProducts.Where(x => x.Name
+                .Contains(_searchData, StringComparison.OrdinalIgnoreCase))
+            .ToList();
     }
 
     public string SelectedFiltrationSetting
@@ -96,10 +103,10 @@ public class MainWindowVM : ObservableObject
         set => Set(ref _filtrationSettings, value, nameof(FiltrationSettings));
     }
 
-    public ObservableCollection<Product> Products
+    public ObservableCollection<Product> DisplayedProducts
     {
-        get => _products;
-        set => Set(ref _products, value, nameof(Products));
+        get => _displayedDisplayedProducts;
+        set => Set(ref _displayedDisplayedProducts, value, nameof(DisplayedProducts));
     }
 
     public ObservableCollection<Button> Buttons
@@ -114,15 +121,39 @@ public class MainWindowVM : ObservableObject
         set => Set(ref _allProducts, value, nameof(AllProducts));
     }
 
-    // test method [DELETE THIS]
-    private void AddTestData(int count)
+    private int TotalPage
     {
+        get => _totalPage;
+        set
+        {
+            _totalPage = value;
+            OnTotalPageChanged();
+        }
+    }
+
+    private void OnTotalPageChanged()
+    {
+        var to = TotalPage * _maxCountDisplay;
+        var from = to - _maxCountDisplay;
+        
+        if (to > _viewProducts.Count) to = _viewProducts.Count;
+        if(from >= _viewProducts.Count || from < 0) return;
+
+        DisplayTotalPageProducts(from, to);
+        ChangePaginationButtons(TotalPage);
+    }
+
+    private void AddTestData(int count)// test method [DELETE THIS]
+    {
+        var names = new string[] {"Cola", "Monster", "Beer", "Potato", "Cabbage"};
+        var random = new Random();
+        
         for (var i = 0; i < count; i++)
         {
-            AllProducts.Add(new Product()
+            _allProducts.Add(new Product()
             {
-                Name = $"Name of product{i}",
-                Price = new Random().Next(100, 20000),
+                Name = $"{names[random.Next(0, names.Length)]}{i}",
+                Price = random.Next(100, 20000),
                 VendorCode = "220-444",
                 Materials = new List<string>()
                 {
@@ -134,6 +165,10 @@ public class MainWindowVM : ObservableObject
                 PathImg = "D:\\meme\\280fbcdca7af8211808471ecaf067654.jpg"
             });
         }
+        // change this
+        _viewProducts = _allProducts
+            .Where(x => x.Materials.Count > 0)
+            .ToList();
     }
 
     private void InitButtons()
@@ -146,16 +181,16 @@ public class MainWindowVM : ObservableObject
             _buttons.Add(new Button()
             {
                 Content = item,
-                Command = new BaseCommand(GetPressedButtonNumber),
+                Command = new BaseCommand(ChangeTotalPageByButtonContent),
                 CommandParameter = item,
                 Width = 20
             });
         }
     }
 
-    private void ChangeButtons(int clickedNumber)
+    private void ChangePaginationButtons(int clickedNumber)
     {
-        if(clickedNumber * 4 > _allProducts.Count) return; 
+        if(clickedNumber * _maxCountDisplay > _allProducts.Count) return; 
 
         if (clickedNumber <= 3)
         {
@@ -175,19 +210,22 @@ public class MainWindowVM : ObservableObject
         }
     }
 
-    private void WriteViewList(int from, int to)
+    private void DisplayTotalPageProducts(int from, int to)
     {
-        // write view list
-        _products.Clear();
+        _displayedDisplayedProducts.Clear();
+        
+        if(_viewProducts.Count == 0)
+            return;
+        
         for (var i = from; i < to; i++)
         {
-            _products.Add(_allProducts[i]);
+            _displayedDisplayedProducts.Add(_viewProducts[i]);
         }
     }
 
     private void ChangeTotalPageByStep(string content)
     {
-        if (content == "+") _totalPage++;
-        else if (content == "-" && _totalPage > 1) _totalPage--;
+        if (content == "+") TotalPage++;
+        else if (content == "-" && TotalPage > 1) TotalPage--;
     }
 }

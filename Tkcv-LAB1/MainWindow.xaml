@@ -64,7 +64,7 @@
                     VerticalAlignment="Top"
                     HorizontalAlignment="Center"
                     Width="1300">
-            <ListBox ItemsSource="{Binding Products}"
+            <ListBox ItemsSource="{Binding DisplayedProducts}"
                      IsHitTestVisible="False"
                      BorderThickness="0"
                      Background="#373E46"
