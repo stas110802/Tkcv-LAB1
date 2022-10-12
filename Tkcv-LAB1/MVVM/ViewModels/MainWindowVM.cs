@@ -171,7 +171,7 @@ public class MainWindowVM : ObservableObject
 
     private void OnFiltrationSettingChanged()
     {
-        
+        //
     }
 
     private void AddTestData(int count)// test method [DELETE THIS]
