@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Controls;
 using Tkcv_LAB1.Core;
+using Tkcv_LAB1.Helpers;
 using Tkcv_LAB1.MVVM.Models;
 
 namespace Tkcv_LAB1.MVVM.ViewModels;
@@ -37,10 +38,9 @@ public class MainWindowVM : ObservableObject
         InitButtons();
 
         // for test, then del 
-        SortTypes.Add("Alphabet (a-Z)");
-        SortTypes.Add("Type");
-        _filtrationSettings.Add("Low price to upper");
-        _filtrationSettings.Add("Upper price to lower");
+        SortTypes.Add("Price: Low to high");
+        SortTypes.Add("Price: High to low");
+
         AddTestData(235);
         TotalPage = 1;
     }
@@ -72,23 +72,25 @@ public class MainWindowVM : ObservableObject
         }
     }
 
-    private void OnChangeSearchBox()
-    {
-        _viewProducts = _allProducts.Where(x => x.Name
-                .Contains(_searchData, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-    }
-
     public string SelectedFiltrationSetting
     {
         get => _selectedFiltrationSetting;
-        set => Set(ref _selectedFiltrationSetting, value, nameof(SelectedFiltrationSetting));
+        set
+        {
+            Set(ref _selectedFiltrationSetting, value, nameof(SelectedFiltrationSetting));
+            OnFiltrationSettingChanged();
+        } 
     }
 
     public string SelectedSort
     {
         get => _selectedSort;
-        set => Set(ref _selectedSort, value, nameof(SelectedSort));
+        set
+        {
+            Set(ref _selectedSort, value, nameof(SelectedSort));
+            OnChangedSort();
+            TotalPage = 1;
+        }
     }
 
     public ObservableCollection<string> SortTypes
@@ -141,6 +143,35 @@ public class MainWindowVM : ObservableObject
 
         DisplayTotalPageProducts(from, to);
         ChangePaginationButtons(TotalPage);
+    }
+
+    private void OnChangeSearchBox()
+    {
+        _viewProducts = _allProducts.Where(x => x.Name
+                .Contains(_searchData, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private void OnChangedSort()
+    {
+        try
+        {
+            var totalSortType = AttributesHelperExtension.GetEnumValueFromDescription<SortType>(SelectedSort);
+            if (totalSortType == SortType.LowToHighPrice)
+            {
+                _viewProducts = _viewProducts.OrderBy(x => x.Price).ToList();
+            }
+            else if (totalSortType == SortType.HighToLowPrice)
+            {
+                _viewProducts = _viewProducts.OrderByDescending(x => x.Price).ToList();
+            }
+        }
+        catch (Exception) { }
+    }
+
+    private void OnFiltrationSettingChanged()
+    {
+        
     }
 
     private void AddTestData(int count)// test method [DELETE THIS]
