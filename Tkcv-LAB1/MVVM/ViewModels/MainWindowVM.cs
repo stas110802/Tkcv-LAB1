@@ -11,18 +11,16 @@ namespace Tkcv_LAB1.MVVM.ViewModels;
 
 public class MainWindowVM : ObservableObject
 {
+    private readonly int _maxCountDisplay;
+    private int _totalPage;
     private string _searchData;
     private string _selectedSort;
     private string _selectedFiltrationSetting;
-    private int _totalPage;
-    private readonly int _maxCountDisplay;
-
+    private List<Product> _viewProducts;
     private ObservableCollection<string> _sortTypes;
     private ObservableCollection<string> _filtrationSettings;
     private ObservableCollection<Product> _allProducts;// all products [rework to list]
     private ObservableCollection<Product> _displayedDisplayedProducts;// displayed products
-    private List<Product> _viewProducts;
-    
     private ObservableCollection<Button> _buttons;
 
     public MainWindowVM()
@@ -38,10 +36,10 @@ public class MainWindowVM : ObservableObject
         InitButtons();
 
         // for test, then del 
-        SortTypes.Add("Price: Low to high");
-        SortTypes.Add("Price: High to low");
+        SortTypes.Add(SortType.LowToHighPrice.ToDescription());
+        SortTypes.Add(SortType.HighToLowPrice.ToDescription());
 
-        AddTestData(235);
+        AddTestData(2350);
         TotalPage = 1;
     }
 
